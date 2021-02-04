@@ -3,6 +3,8 @@ package com.roberto.hibernate.crud.service;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.transaction.Transaction;
+
 import com.roberto.hibernate.crud.dao.HbStudentDao;
 import com.roberto.hibernate.model.HbStudent;
 
@@ -44,8 +46,7 @@ public class HbStudentService {
 	
 	public HbStudent updateStudent(HbStudent studentToUpdate) {
 		log.info("updateStudent - START - studentToUpdate=" + studentToUpdate);
-		this.hbStudentDao.updateHbStudent(studentToUpdate);
-		HbStudent studentUpdated = this.hbStudentDao.selectHbStudent(studentToUpdate.getIdentifier());
+		HbStudent studentUpdated = this.hbStudentDao.updateHbStudent(studentToUpdate);
 		
 		log.info("updateStudent - END - result=" + studentUpdated);
 		return studentUpdated;

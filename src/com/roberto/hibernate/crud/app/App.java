@@ -7,7 +7,7 @@ import com.roberto.hibernate.model.HbStudent;
 
 public class App {
 
-	private static final String MENU = new StringBuilder("*************** MENU ***************  ")
+	private static final String MENU = new StringBuilder("\n*************** MENU ***************  ")
 												.append("\n\t[1] CREATE student")
 												.append("\n\t[2] READ student")
 												.append("\n\t[3] UPDATE student")
@@ -39,6 +39,11 @@ public class App {
 	private static final String SUBMENU_2_UPDATE = new StringBuilder("\t Insert student id to update: ")
 															.append("\n> ")
 															.toString();
+	
+	private static final String SUBMENU_DELETE = new StringBuilder("\t Insert student id to delete: ")
+			.append("\n> ")
+			.toString();
+	
 	
 	private static HbStudentService hbStudentService = new HbStudentService();
 	
@@ -85,8 +90,10 @@ public class App {
 					} catch (NumberFormatException e) {
 						System.out.println("\n\t The id provided must be number");
 					}
-					if(id != null) {
-						HbStudent studentFound = hbStudentService.getStudent(id);
+					HbStudent studentFound = hbStudentService.getStudent(id);
+					if(studentFound == null){
+						System.out.println("Id provided not exists");
+					}else {
 						System.out.println("Student found: " + studentFound.getName() + " " + studentFound.getSurname() + " " + studentFound.getEmailAddress());
 					}
 					break;
@@ -101,7 +108,7 @@ public class App {
 					String updateUserInput = userInput = getUserInput(inputScanner);
 					boolean isChoiceValid = false;
 					
-					HbStudent oldStudent = null;
+					HbStudent studentToUpdate = new HbStudent();
 					String newName = null;
 					String newLastName = null;
 					String newEmail = null;
@@ -179,7 +186,7 @@ public class App {
 							}
 					}
 					
-					System.out.println(SUBMENU_2_UPDATE);
+					System.out.print(SUBMENU_2_UPDATE);
 					String input = getUserInput(inputScanner);
 					Long id = null;
 					try {
@@ -188,16 +195,17 @@ public class App {
 						System.out.println("\n\t The id provided must be number");
 					}
 					
-					oldStudent = hbStudentService.getStudent(id);
-					if(id == null) {
-						System.out.println("\t Student with id provided not exists");
-					} else {
-						oldStudent.setName(newName != null? newName: oldStudent.getName());
-						oldStudent.setSurname(newLastName != null? newLastName: oldStudent.getSurname());
-						oldStudent.setEmailAddress(newEmail != null? newEmail: oldStudent.getEmailAddress());
-						HbStudent studentUpdated = hbStudentService.updateStudent(oldStudent);
-						System.out.println("updated " + studentUpdated.getName() + " " + studentUpdated.getSurname() + " " + studentUpdated.getEmailAddress());
+					studentToUpdate.setIdentifier(id);
+					studentToUpdate.setName(newName);
+					studentToUpdate.setSurname(newLastName);
+					studentToUpdate.setEmailAddress(newEmail);
+					HbStudent studentUpdated = hbStudentService.updateStudent(studentToUpdate);
+					if(studentUpdated == null) {
+						System.out.println("Error to update... contact IT admin");
+					}else {
+						System.out.println("Updated " + studentUpdated.getName() + " " + studentUpdated.getSurname() + " " + studentUpdated.getEmailAddress());
 					}
+					break;
 				}
 				
 				case "D":
@@ -205,7 +213,25 @@ public class App {
 				case "DELETE":
 				case "delete":
 				case "4": {
-					System.out.println("deleted...");
+					System.out.print(SUBMENU_DELETE);
+					userInput = getUserInput(inputScanner);
+					boolean isValidInput = false;
+					
+					Long idToDel = null;
+					while(!isValidInput) {
+						try {
+							idToDel = Long.valueOf(userInput);
+							hbStudentService.deleteStudent(idToDel);
+							isValidInput = true;
+						} catch (NumberFormatException e) {
+							System.out.println("Id provided is not a number");
+						} catch (IllegalArgumentException e) {
+							System.out.println("Object id to delete not exists");
+						} 
+						System.out.println();
+						System.out.print(SUBMENU_DELETE);
+						userInput = getUserInput(inputScanner);
+					}
 					break;
 				}
 				default: {
